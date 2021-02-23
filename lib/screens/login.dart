@@ -18,6 +18,7 @@ class _LoginState extends State<Login>
     {
       if(value) meth.uploadData(user).then((value)
       {
+        meth.addToLog(user.displayName + " has registered");
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Home()));
       });
       else  Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => Home()));

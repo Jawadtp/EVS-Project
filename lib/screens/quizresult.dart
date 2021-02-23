@@ -84,12 +84,17 @@ class _QuizResultState extends State<QuizResult> with AutomaticKeepAliveClientMi
         Container(padding: EdgeInsets.symmetric(horizontal: 50),
           child: Row(
             children: [
-              ElevatedButton(onPressed: (){Navigator.push(
+              ElevatedButton(onPressed: (){
+                meth.addToLog(widget.user.displayName + " accessed stats of " + widget.quizid);
+                Navigator.push(
                   context, MaterialPageRoute(
-                  builder: (BuildContext context) => QuizStats(quizid: widget.quizid,)));}, child: Text("Views stats")),
+                  builder: (BuildContext context) => QuizStats(quizid: widget.quizid,)));
+                }, child: Text("Views stats")),
 
               Spacer(),
-              ElevatedButton(onPressed: (){Navigator.push(
+              ElevatedButton(onPressed: (){
+                meth.addToLog(widget.user.displayName + " accessed hall of fame of quiz " + widget.quizid);
+                Navigator.push(
                   context, MaterialPageRoute(
                   builder: (BuildContext context) => HallOfFame(quizid: widget.quizid, totalqs: totalqs)));}, child: Text("Hall of fame")),
             ],

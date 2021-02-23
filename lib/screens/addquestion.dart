@@ -5,7 +5,8 @@ import 'firebase_methods.dart';
 class AddQuestion extends StatefulWidget
 {
   String quizid;
-  AddQuestion({this.quizid});
+  bool mode;
+  AddQuestion({this.quizid, this.mode});
   @override
   _AddQuestionState createState() => _AddQuestionState();
 }
@@ -16,7 +17,7 @@ class _AddQuestionState extends State<AddQuestion>
 
   GlobalConstants _glob=new GlobalConstants();
   double textfieldspacing=10;
-  String question="", option1="", option2="", option3="", option4="";
+  String question="", option1="", option2="", option3="", option4="",chartlabel="";
   final _formKey= GlobalKey<FormState>();
 
   addQuestion(int x) async
@@ -28,9 +29,21 @@ class _AddQuestionState extends State<AddQuestion>
       'option2':option2,
       'option3':option3,
       'option4':option4,
+
     };
-    meth.initialiseQuizStatistic(widget.quizid, question, option1);
-    meth.uploadQuestion(m,widget.quizid).then((value)
+
+    if(!widget.mode) meth.initialiseQuizStatistic(widget.quizid, question, option1);
+
+    if(widget.mode)
+      {
+        m['chartlabel'] = (chartlabel.isEmpty)?question:chartlabel;
+        chartlabel="";
+        meth.initialiseSurvey(widget.quizid, question, option1);
+        meth.initialiseSurvey(widget.quizid, question, option2);
+        meth.initialiseSurvey(widget.quizid, question, option3);
+        meth.initialiseSurvey(widget.quizid, question, option4);
+      }
+    meth.uploadQuestion(m,widget.quizid, question).then((value)
     {
       _formKey.currentState.reset();
       if(x==1) Navigator.pop(context);
@@ -49,7 +62,7 @@ class _AddQuestionState extends State<AddQuestion>
             },),
             SizedBox(height: textfieldspacing,),
 
-            TextFormField(decoration: InputDecoration(hintText: "Enter option 1 (correct answer)"),onChanged: (val){option1=val;},validator: (val)
+            TextFormField(decoration: InputDecoration(hintText: !widget.mode?"Enter option 1 (correct answer)":"Enter option 1"),onChanged: (val){option1=val;},validator: (val)
             {
               if(val.isEmpty) return "Please enter a choice";
             },),
@@ -71,6 +84,10 @@ class _AddQuestionState extends State<AddQuestion>
             {
               if(val.isEmpty) return "Please enter a choice";
             },),
+            SizedBox(height: textfieldspacing,),
+
+            !widget.mode?Container():TextFormField(decoration: InputDecoration(hintText: "Chart label (optional)"),onChanged: (val){chartlabel=val;},),
+
             Spacer(),
             Container(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Row(
@@ -86,7 +103,7 @@ class _AddQuestionState extends State<AddQuestion>
                       addQuestion(1);
                     }
                     else Navigator.pop(context);
-                  }, child: Container(padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),child: Text("Submit Quiz",style: TextStyle(fontSize: 15),))),),
+                  }, child: Container(padding: EdgeInsets.symmetric(horizontal: !widget.mode?20:15, vertical: 15),child: Text(!widget.mode?"Submit Quiz":"Submit Survey",style: TextStyle(fontSize: 15),))),),
                 ],
               ),
             )

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:evs_project/screens/addquestion.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +15,7 @@ class CreateQuiz extends StatefulWidget {
 
 class _CreateQuizState extends State<CreateQuiz> {
 
+  bool mode=false;
   final _formKey= GlobalKey<FormState>();
   Methods meth= new Methods();
 
@@ -56,12 +58,14 @@ class _CreateQuizState extends State<CreateQuiz> {
           'author':user.displayName,
           'url':value,
           'questioncount': 0,
+          'type': mode?"Survey":"Quiz",
+          'time': FieldValue.serverTimestamp(),
         };
         meth.uploadQuiz(m).then((value)
         {
           Navigator.pushReplacement(
               context, MaterialPageRoute(
-              builder: (BuildContext context) => AddQuestion(quizid: title,)));
+              builder: (BuildContext context) => AddQuestion(quizid: title, mode: mode,)));
         });
       });
     });
@@ -96,26 +100,30 @@ class _CreateQuizState extends State<CreateQuiz> {
         child: Form(key: _formKey,
           child: Column(children:
     [
-          TextFormField(decoration: InputDecoration(hintText: "Quiz Title"),onChanged: (val){title=val;},validator: (val)
+          TextFormField(decoration: InputDecoration(hintText: !mode?"Quiz Title":"Survey Title"),onChanged: (val){title=val;},validator: (val)
           {
             if(val.isEmpty) return 'Please enter a title';
           }),
            SizedBox(height: 5),
-          TextFormField(decoration: InputDecoration(hintText: "Describe your quiz in a sentence"),onChanged: (val){description=val;},validator: (val)
+          TextFormField(decoration: InputDecoration(hintText: !mode?"Describe your quiz in a sentence":"Describe your survey in a sentence"),onChanged: (val){description=val;},validator: (val)
           {
             if(val.isEmpty) return 'Please enter a suitable description';
           },),
           SizedBox(height: 30,),
-          OutlinedButton(onPressed: (){getImage();}, child: Text("Pick a background image for your quiz")),
+          OutlinedButton(onPressed: (){getImage();}, child: Text(!mode?"Pick a background image for your quiz":"Pick a background image for your survey")),
           SizedBox(height: 30,),
           _image==null?Container():Container(height: MediaQuery.of(context).size.height/4, width:MediaQuery.of(context).size.width,child: ClipRRect(borderRadius:BorderRadius.circular(20),child: Image.file(_image,fit: BoxFit.fill,))),
+
+         Text(!mode?"Switch to survey mode":"Switch to quiz mode",style: TextStyle(fontSize: 15),),
+         Switch(onChanged: (val){setState(() {mode=val;});}, value: mode,),
+
           Spacer(),
 
           ClipRRect(borderRadius: BorderRadius.circular(50),child:ElevatedButton(onPressed: ()
           {
             print("Upload quiz");
             if(_formKey.currentState.validate()) uploadQuiz();
-          }, child: Container(padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),child: Text("Create Quiz",style: TextStyle(fontSize: 15),))),)
+          }, child: Container(padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),child: Text(!mode?"Create Quiz":"Create Survey",style: TextStyle(fontSize: 15),))),)
     ],),
         ),
       ) );

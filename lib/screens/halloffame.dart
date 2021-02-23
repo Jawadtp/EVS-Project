@@ -55,7 +55,7 @@ class _WinnerTileState extends State<WinnerTile>
       SizedBox(width: 10,),
       Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.name,style: TextStyle(fontSize: 17),),
+          Container(child: Text(widget.name,style: TextStyle(fontSize: 17),softWrap: true),constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width/2.05),),
           Text("Score: "+ widget.score.toString()+"/"+widget.totalqs.toString())
         ],
       ),
